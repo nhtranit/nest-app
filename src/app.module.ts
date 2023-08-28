@@ -6,6 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // middleware
 import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
+import { CorsMiddleware } from './middlewares/cors/cors.middleware';
+import { HelmetMiddleware } from './middlewares/helmet/helmet.middleware';
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(LoggerMiddleware).forRoutes('*'); // Áp dụng middleware cho tất cả các yêu cầu
+    consumer
+      .apply(LoggerMiddleware, CorsMiddleware, HelmetMiddleware)
+      .forRoutes('*'); // Áp dụng middleware cho tất cả các yêu cầu
   }
 }
