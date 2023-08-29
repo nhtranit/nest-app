@@ -5,9 +5,11 @@ import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 // middleware
-import { LoggerMiddleware } from './middlewares/logger/logger.middleware';
-import { CorsMiddleware } from './middlewares/cors/cors.middleware';
-import { HelmetMiddleware } from './middlewares/helmet/helmet.middleware';
+import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware';
+import { CorsMiddleware } from './common/middlewares/cors/cors.middleware';
+import { HelmetMiddleware } from './common/middlewares/helmet/helmet.middleware';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { FormatResponseInterceptor } from './common/interceptors/format-response/format-response.interceptor';
 
 @Module({
   imports: [
@@ -24,7 +26,13 @@ import { HelmetMiddleware } from './middlewares/helmet/helmet.middleware';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: FormatResponseInterceptor,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
