@@ -8,8 +8,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware';
 import { CorsMiddleware } from './common/middlewares/cors/cors.middleware';
 import { HelmetMiddleware } from './common/middlewares/helmet/helmet.middleware';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatResponseInterceptor } from './common/interceptors/format-response/format-response.interceptor';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
@@ -23,6 +24,10 @@ import { FormatResponseInterceptor } from './common/interceptors/format-response
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 100,
+    }),
     UsersModule,
   ],
   controllers: [AppController],
@@ -31,6 +36,10 @@ import { FormatResponseInterceptor } from './common/interceptors/format-response
     {
       provide: APP_INTERCEPTOR,
       useClass: FormatResponseInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
   ],
 })
