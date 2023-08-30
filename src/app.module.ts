@@ -6,11 +6,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 // middleware
 import { LoggerMiddleware } from './common/middlewares/logger/logger.middleware';
-import { CorsMiddleware } from './common/middlewares/cors/cors.middleware';
 import { HelmetMiddleware } from './common/middlewares/helmet/helmet.middleware';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { FormatResponseInterceptor } from './common/interceptors/format-response/format-response.interceptor';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -29,6 +29,7 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
       limit: 100,
     }),
     UsersModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -45,8 +46,6 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware, CorsMiddleware, HelmetMiddleware)
-      .forRoutes('*'); // Áp dụng middleware cho tất cả các yêu cầu
+    consumer.apply(LoggerMiddleware, HelmetMiddleware).forRoutes('*'); // Áp dụng middleware cho tất cả các yêu cầu
   }
 }
